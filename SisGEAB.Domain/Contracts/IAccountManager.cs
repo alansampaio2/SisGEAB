@@ -20,7 +20,7 @@ namespace SisGEAB.Domain.Contracts
         Task<Funcao> GetRoleByIdAsync(string roleId);
         Task<Funcao> GetRoleByNameAsync(string roleName);
         Task<Funcao> GetRoleLoadRelatedAsync(string roleName);
-        Task<List<Funcao>> GetRolesLoadRelatedAsync(int page, int pageSize);
+        Task<List<Funcao>> GetRolesLoadRelatedAsync();
         Task<(Usuario User, string[] Roles)?> GetUserAndRolesAsync(string userId);
         Task<Usuario> GetUserByEmailAsync(string email);
         Task<Usuario> GetUserByIdAsync(string userId);
@@ -34,5 +34,7 @@ namespace SisGEAB.Domain.Contracts
         Task<(bool Succeeded, string[] Errors)> UpdateRoleAsync(Funcao role, IEnumerable<string> claims);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(Usuario user);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(Usuario user, IEnumerable<string> roles);
+        Task<string> GenerateEmailConfirmationTokenAsync(Usuario usuario);
+        Task<(bool Succeeded, string[] Errors)> ConfirmEmailAsync(Usuario usuario, string token);
     }
 }

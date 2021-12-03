@@ -8,6 +8,7 @@ using SisGEAB.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,9 +47,44 @@ namespace SisGEAB.Domain.Repositories
             return true;
         }
 
-        public Task<(bool Succeeded, string[] Errors)> CreateRoleAsync(Funcao role, IEnumerable<string> claims)
+        public async Task<(bool Succeeded, string[] Errors)> ConfirmEmailAsync(Usuario usuario, string token)
         {
-            throw new NotImplementedException();
+            var result = await _userManager.ConfirmEmailAsync(usuario, token);
+            if(!result.Succeeded)
+                return (false, result.Errors.Select(e => e.Description).ToArray());
+
+            return (true, new string[] { });
+        }
+
+        public async Task<(bool Succeeded, string[] Errors)> CreateRoleAsync(Funcao role, IEnumerable<string> claims)
+        {
+            if (claims == null)
+                claims = new string[] { };
+
+            string[] invalidClaims = claims.Where(c => Permissoes.SelecionarPermissaoPorValor(c) == null).ToArray();
+            if (invalidClaims.Any())
+                return (false, new[] { "Os seguintes tipos de Claims são inválidos: " + string.Join(", ", invalidClaims) });
+
+
+            var result = await _roleManager.CreateAsync(role);
+            if (!result.Succeeded)
+                return (false, result.Errors.Select(e => e.Description).ToArray());
+
+
+            role = await _roleManager.FindByNameAsync(role.Name);
+
+            foreach (string claim in claims.Distinct())
+            {
+                result = await this._roleManager.AddClaimAsync(role, new Claim(ClaimConstants.Permission, Permissoes.SelecionarPermissaoPorValor(claim)));
+
+                if (!result.Succeeded)
+                {
+                    await DeleteRoleAsync(role);
+                    return (false, result.Errors.Select(e => e.Description).ToArray());
+                }
+            }
+
+            return (true, new string[] { });
         }
 
         public async Task<(bool Succeeded, string[] Errors)> CreateUserAsync(Usuario user, IEnumerable<string> roles, string password)
@@ -105,24 +141,42 @@ namespace SisGEAB.Domain.Repositories
             return (true, new string[] { });
         }
 
-        public Task<Funcao> GetRoleByIdAsync(string roleId)
+        public Task<string> GenerateEmailConfirmationTokenAsync(Usuario usuario)
         {
-            throw new NotImplementedException();
+            return _userManager.GenerateEmailConfirmationTokenAsync(usuario);
         }
 
-        public Task<Funcao> GetRoleByNameAsync(string roleName)
+        public async Task<Funcao> GetRoleByIdAsync(string roleId)
         {
-            throw new NotImplementedException();
+            return await _roleManager.FindByIdAsync(roleId);
         }
 
-        public Task<Funcao> GetRoleLoadRelatedAsync(string roleName)
+        public async Task<Funcao> GetRoleByNameAsync(string roleName)
         {
-            throw new NotImplementedException();
+            return await _roleManager.FindByNameAsync(roleName);
         }
 
-        public Task<List<Funcao>> GetRolesLoadRelatedAsync(int page, int pageSize)
+        public async Task<Funcao> GetRoleLoadRelatedAsync(string roleName)
         {
-            throw new NotImplementedException();
+            var role = await _context.Roles
+                .Include(r => r.Claims)
+                .Include(r => r.Usuarios)
+                .Where(r => r.Name == roleName)
+                .SingleOrDefaultAsync();
+
+            return role;
+        }
+
+        public async Task<List<Funcao>> GetRolesLoadRelatedAsync()
+        {
+            IQueryable<Funcao> rolesQuery = _context.Roles
+                .Include(r => r.Claims)
+                .Include(r => r.Usuarios)
+                .OrderBy(r => r.Name);
+                   
+            var roles = await rolesQuery.ToListAsync();
+
+            return roles;
         }
 
         public async Task<(Usuario User, string[] Roles)?> GetUserAndRolesAsync(string userId)
