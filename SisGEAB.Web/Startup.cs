@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using SisGEAB.Domain.Contracts;
 using SisGEAB.Domain.Core;
 using SisGEAB.Domain.Data;
@@ -46,19 +47,27 @@ namespace SisGEAB.Web
                 options.AccessDeniedPath = "/Account/NotAuthorized";
             });
 
-            services.AddIdentity<Usuario, Funcao>(cfg =>
+            services.AddIdentity<Usuario, Funcao>()
+                .AddEntityFrameworkStores<Contexto>()
+                .AddDefaultTokenProviders();
+
+            // Configure Identity options and password complexity here
+            services.Configure<IdentityOptions>(options =>
             {
-                cfg.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
-                cfg.SignIn.RequireConfirmedEmail = true;
-                cfg.User.RequireUniqueEmail = true;
-                cfg.Password.RequireDigit = false;
-                cfg.Password.RequiredUniqueChars = 0;
-                cfg.Password.RequireLowercase = false;
-                cfg.Password.RequireNonAlphanumeric = false;
-                cfg.Password.RequireUppercase = false;
-            })
-                .AddDefaultTokenProviders()
-                .AddEntityFrameworkStores<Contexto>();
+                // User settings
+                options.User.RequireUniqueEmail = true;
+
+                // Password settings
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+            });
 
             services.AddDbContext<Contexto>(cfg =>
             {
@@ -117,6 +126,7 @@ namespace SisGEAB.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                loggerFactory.AddSerilog();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }

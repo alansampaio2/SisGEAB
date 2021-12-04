@@ -15,6 +15,7 @@ namespace SisGEAB.Domain.Data
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<Enfermeiro> Enfermeiros { get; set; }
         public DbSet<AgenteDeSaude> AgentesDeSaudes { get; set; }
+        public DbSet<Administrativo> Administrativos { get; set; }
 
         public Contexto(DbContextOptions options) : base(options)
         { }

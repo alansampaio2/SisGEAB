@@ -3,9 +3,7 @@ using SisGEAB.Domain.Contracts;
 using SisGEAB.Domain.Enums;
 using SisGEAB.Domain.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SisGEAB.Domain.Data
@@ -19,13 +17,13 @@ namespace SisGEAB.Domain.Data
     {
         private readonly Contexto _context;
         private readonly IAccountManager _accountManager;
-        private readonly ILogger _logger;
+        //private readonly ILogger _logger;
 
-        public DatabaseInitializer(Contexto context, IAccountManager accountManager, ILogger logger)
+        public DatabaseInitializer(Contexto context, IAccountManager accountManager)//, ILogger logger)
         {
             _context = context;
             _accountManager = accountManager;
-            _logger = logger;
+            //_logger = logger;
         }
 
         public async Task SeedAsync()
