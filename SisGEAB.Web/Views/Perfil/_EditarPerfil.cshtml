@@ -1,0 +1,33 @@
+﻿@model SisGEAB.Web.Models.UsuarioPerfilViewModel
+
+<form asp-action="AtualizaUsuario" class="form-horizontal">
+    <div class="form-group row">
+        <label asp-for="CPF" class="col-sm-3 col-form-label">CPF:</label>
+        <div class="col-sm-9">
+            <input asp-for="CPF" type="text" class="form-control" id="inputName" placeholder="CPF" disabled="disabled">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="NomeCompleto" class="col-sm-3 col-form-label">Nome Completo</label>
+        <div class="col-sm-9">
+            <input asp-for="NomeCompleto" type="text" class="form-control" id="inputName" placeholder="Nome Completo">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Email" class="col-sm-3 col-form-label">Email</label>
+        <div class="col-sm-9">
+            <input asp-for="Email" type="email" class="form-control" id="inputEmail" placeholder="Email">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="TituloProfissional" class="col-sm-3 col-form-label">Título de Tratamento</label>
+        <div class="col-sm-9">
+            <input asp-for="TituloProfissional" type="text" class="form-control" id="inputName2" placeholder="Título de Tratamento">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="offset-sm-3 col-sm-9">
+            <button type="submit" class="btn btn-danger">Atualizar</button>
+        </div>
+    </div>
+</form>

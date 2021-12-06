@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SisGEAB.Domain.Contracts;
 using SisGEAB.Domain.Enums;
 using SisGEAB.Domain.Models;
@@ -28,34 +29,37 @@ namespace SisGEAB.Domain.Data
 
         public async Task SeedAsync()
         {
-            await _context.Database.EnsureCreatedAsync();
+            await _context.Database.MigrateAsync().ConfigureAwait(false);
 
-            const string _NomeFuncaoAdministrador = "Administrador";
-            const string _NomeFuncaoEnfermeiro = "Enfermeiro";
-            const string _NomeFuncaoEnfermeiroRT = "Enfermeiro Referencia Técnica";
-            const string _NomeFuncaoACS = "Agente de Saúde";
-            const string _NomeFuncaoPaciente = "Paciente";
-            const string _NomeFuncaoAdministrativo = "Administrativo";
+            if (!await _context.Users.AnyAsync())
+            {
+                const string _NomeFuncaoAdministrador = "Administrador";
+                const string _NomeFuncaoEnfermeiro = "Enfermeiro";
+                const string _NomeFuncaoEnfermeiroRT = "Enfermeiro Referencia Técnica";
+                const string _NomeFuncaoACS = "Agente de Saúde";
+                const string _NomeFuncaoPaciente = "Paciente";
+                const string _NomeFuncaoAdministrativo = "Administrativo";
 
-            await CadastrarFuncaoAsync(_NomeFuncaoAdministrador, "Acesso Total a Todas as Funções do Sistema", Permissoes.SelecionarTodasValoresPermissao());
-            await CadastrarFuncaoAsync(_NomeFuncaoEnfermeiroRT, "Acesso Restrito a Funçoes Específicas Inerentes aos Resposáveis Técnicos", new string[] { });
-            await CadastrarFuncaoAsync(_NomeFuncaoEnfermeiro, "Acesso Restrito a Funçoes Específicas Inerentes aos Enfermeiros", new string[] { });
-            await CadastrarFuncaoAsync(_NomeFuncaoAdministrativo, "Acesso Restrito a Funçoes Específicas Inerentes aos Administrativos", new string[] { });
-            await CadastrarFuncaoAsync(_NomeFuncaoACS, "Acesso Restrito a Funçoes Específicas Inerentes aos Agentes de Saúde", new string[] { });
-            await CadastrarFuncaoAsync(_NomeFuncaoPaciente, "Acesso Restrito a Funçoes Específicas Inerentes aos Pacientes", new string[] { });
+                await CadastrarFuncaoAsync(_NomeFuncaoAdministrador, "Acesso Total a Todas as Funções do Sistema", Permissoes.SelecionarTodasValoresPermissao());
+                await CadastrarFuncaoAsync(_NomeFuncaoEnfermeiroRT, "Acesso Restrito a Funçoes Específicas Inerentes aos Resposáveis Técnicos", new string[] { });
+                await CadastrarFuncaoAsync(_NomeFuncaoEnfermeiro, "Acesso Restrito a Funçoes Específicas Inerentes aos Enfermeiros", new string[] { });
+                await CadastrarFuncaoAsync(_NomeFuncaoAdministrativo, "Acesso Restrito a Funçoes Específicas Inerentes aos Administrativos", new string[] { });
+                await CadastrarFuncaoAsync(_NomeFuncaoACS, "Acesso Restrito a Funçoes Específicas Inerentes aos Agentes de Saúde", new string[] { });
+                await CadastrarFuncaoAsync(_NomeFuncaoPaciente, "Acesso Restrito a Funçoes Específicas Inerentes aos Pacientes", new string[] { });
 
-            var enfermeiroAdministrador = await CadastraUsuarioAsync("alansampaio", "Alan Mangueira Sampaio", "97519995534", "alanmangueira@gmail.com", "79999058203", new string[] { _NomeFuncaoAdministrador  });
+                var enfermeiroAdministrador = await CadastraUsuarioAsync("Alan Mangueira Sampaio", "97519995534", "alanmangueira@gmail.com", "79999058203", new string[] { _NomeFuncaoAdministrador });
 
-            await CadastroEnfermeiroAsync(enfermeiroAdministrador, "Henilma Mangueira Sampaio", "José Fernando Sampaio", "1112222333344445555", new DateTime(1978, 7, 19), Sexo.Masculino, EstadoCivil.Casado, RacaCor.Preta, enfermeiroAdministrador.PhoneNumber, "121119", UF.SE, "402481");
+                await CadastroEnfermeiroAsync(enfermeiroAdministrador, "Henilma Mangueira Sampaio", "José Fernando Sampaio", "1112222333344445555", new DateTime(1978, 7, 19), Sexo.Masculino, EstadoCivil.Casado, RacaCor.Preta, enfermeiroAdministrador.PhoneNumber, "121119", UF.SE, "402481");
+            }
 
         }
 
-        private async Task<Usuario> CadastraUsuarioAsync(string nomeUsuario, string nome, string cpf, string email, string celular, string[] funcoes)
+        private async Task<Usuario> CadastraUsuarioAsync(string nome, string cpf, string email, string celular, string[] funcoes)
         {
             Usuario user = new Usuario
             {
                 NomeCompleto = nome,
-                UserName = nomeUsuario,
+                UserName = cpf,
                 CPF = cpf,
                 Email = email,
                 PhoneNumber = celular,

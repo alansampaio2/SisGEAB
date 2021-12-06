@@ -1,4 +1,5 @@
-﻿using SisGEAB.Domain.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using SisGEAB.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,5 +37,6 @@ namespace SisGEAB.Domain.Contracts
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(Usuario user, IEnumerable<string> roles);
         Task<string> GenerateEmailConfirmationTokenAsync(Usuario usuario);
         Task<(bool Succeeded, string[] Errors)> ConfirmEmailAsync(Usuario usuario, string token);
+        Task<SignInResult> Login(string nomeUsuario, string senha, bool lembrarme);
     }
 }

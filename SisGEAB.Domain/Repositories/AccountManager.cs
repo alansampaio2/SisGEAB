@@ -19,19 +19,20 @@ namespace SisGEAB.Domain.Repositories
         private readonly Contexto _context;
         private readonly UserManager<Usuario> _userManager;
         private readonly RoleManager<Funcao> _roleManager;
+        private readonly SignInManager<Usuario> _signInManager;
 
 
         public AccountManager(
             Contexto context,
             UserManager<Usuario> userManager,
             RoleManager<Funcao> roleManager,
-            IHttpContextAccessor httpAccessor)
+            IHttpContextAccessor httpAccessor, SignInManager<Usuario> signInManager)
         {
             _context = context;
             _context.CurrentUserId = httpAccessor.HttpContext?.User.FindFirst(ClaimConstants.Subject)?.Value?.Trim();
             _userManager = userManager;
             _roleManager = roleManager;
-
+            _signInManager = signInManager;
         }
 
         public async Task<bool> CheckPasswordAsync(Usuario user, string password)
@@ -236,6 +237,11 @@ namespace SisGEAB.Domain.Repositories
             return users
                 .Select(u => (u, roles.Where(r => u.Roles.Select(ur => ur.RoleId).Contains(r.Id)).Select(r => r.Name).ToArray()))
                 .ToList();
+        }
+
+        public async Task<SignInResult> Login(string nomeUsuario, string senha, bool lembrarme)
+        {
+            return await _signInManager.PasswordSignInAsync(nomeUsuario, senha, lembrarme, false);
         }
 
         public async Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(Usuario user, string newPassword)

@@ -2,9 +2,6 @@
 using SisGEAB.Domain.Models.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SisGEAB.Domain.Models
 {
@@ -33,6 +30,13 @@ namespace SisGEAB.Domain.Models
         public string UpdatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        public void AlteraUsuario(string titulo, string nome, string email)
+        {
+            TituloProfissional = titulo;
+            NomeCompleto = nome;
+            Email = email;
+        }
 
 
 
